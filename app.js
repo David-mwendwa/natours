@@ -5,14 +5,28 @@ const { StatusCodes } = require('http-status-codes');
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log('Hello from the middleware 👋');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
 const getAllTours = (req, res) => {
-  res
-    .status(StatusCodes.OK)
-    .json({ status: 'success', results: tours.length, data: { tours } });
+  console.log(req.requestTime);
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    requestedAt: req.requestTime,
+    results: tours.length,
+    data: { tours },
+  });
 };
 
 const getTour = (req, res) => {
@@ -76,4 +90,3 @@ const port = 5000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
-
