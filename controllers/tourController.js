@@ -1,16 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const Tour = require('../models/tourModel');
 
-exports.checkBody = (req, res, next) => {
-  const { name, price } = req.body;
-  if (!name || !price) {
-    return res
-      .status(400)
-      .json({ status: 'fail', message: 'Please add name and price' });
-  }
-  next();
-};
-
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
   res.status(StatusCodes.OK).json({
@@ -27,13 +17,18 @@ exports.getTour = (req, res) => {
   // res.status(StatusCodes.OK).json({ status: 'success', date: { tour } });
 };
 
-exports.createTour = (req, res) => {
-  res.status(StatusCodes.CREATED).json({
-    status: 'success',
-    data: {
-      // tour,
-    },
-  });
+exports.createTour = async (req, res) => {
+  try {
+    const newTour = await Tour.create(req.body);
+    res.status(StatusCodes.CREATED).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err });
+  }
 };
 
 exports.updateTour = (req, res) => {
