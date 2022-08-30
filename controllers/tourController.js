@@ -12,6 +12,7 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
+  let trs = await Tour.find();
   // EXECUTE QUERY
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
@@ -19,6 +20,8 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const tours = await features.query;
+
+  console.log({ trs, len: trs.length });
 
   // SEND RESPONSE
   res.status(StatusCodes.OK).json({
