@@ -1,4 +1,5 @@
 const { promisify } = require('util');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
@@ -74,7 +75,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   // check if the user changed password after the jwt was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('Password was recently changed. Please log in again.')
+      new AppError('Password was recently changed. Please log in again.', 401)
     );
   }
   // grant access to protected route
@@ -132,4 +133,28 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // get user based on the token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  // if token has not expired, and there is user, set the new password
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 404));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  // update changedPasswordAt property for the current user
+
+  // log the uer in, send JWT
+  const token = signToken(user._id);
+  res.status(200).json({ status: 'success', token });
+});
