@@ -166,12 +166,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
   // check if the posted passward is correct
   const { passwordCurrent, password, passwordConfirm } = req.body;
-  const isCurrentPwdCorrent = await user.correctPassword(
+  const isCurrentPwdCorrect = await user.correctPassword(
     passwordCurrent,
     user.password
   );
 
-  if (!isCurrentPwdCorrent) {
+  if (!isCurrentPwdCorrect) {
     return next(new AppError('Your current password is wrong', 401));
   }
   // if so, update the password
@@ -179,6 +179,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = passwordConfirm;
   await user.save(); //  User.findByIdAndUpdate will NOT work as intended!
 
-  // log user in, send jwt
   createSendToken(user, 200, res);
 });
