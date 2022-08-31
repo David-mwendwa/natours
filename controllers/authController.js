@@ -91,3 +91,19 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+// user sends a post request to a forgot password route with his email
+// which therefore creates a reset token and sent to the email that was provided
+// the user then sends that token from his email along with a new password
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // get user based on posted email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError('There is no user with that email address', 404));
+  }
+  // generate a random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+});
+
+exports.resetPassword = (req, res, next) => {};
