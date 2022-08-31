@@ -3,6 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -23,7 +25,14 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json({ limit: '10k' }));
+// body parser, reading data from req.body
+app.use(express.json());
+
+// data sanitization against xss
+app.use(mongoSanitize());
+app.use(xss());
+
+// serving static files
 app.use(express.static(`${__dirname}/public`)); //serve html files
 
 app.use((req, res, next) => {
