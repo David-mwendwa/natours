@@ -43,6 +43,11 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     .json({ status: 'success', data: { user: updatedUser } });
 });
 
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({ status: 'success', data: null });
+});
+
 exports.getUser = (req, res) => {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     status: 'error',
