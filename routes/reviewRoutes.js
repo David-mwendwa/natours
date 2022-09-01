@@ -1,7 +1,8 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-// POST /tour/234sdhs/reviews
+// POST /tours/234sdhs/reviews
+// GET /tours/234sdhs/reviews
 // POST /reviews
 
 const {
