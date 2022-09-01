@@ -12,13 +12,7 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
     .json({ status: 'success', results: reviews.length, data: { reviews } });
 });
 
-exports.getReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(req.params.id);
-  if (!review) {
-    return next(AppError('There is no review with that id', 404));
-  }
-  res.status(200).json({ status: 'success', data: { review } });
-});
+exports.getReview = factory.getOne(Review);
 
 exports.setTourUserIds = (req, res, next) => {
   // allow nested routes
@@ -26,7 +20,6 @@ exports.setTourUserIds = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
   next();
 };
-
 exports.createReview = factory.createOne(Review);
 
 exports.updateReview = factory.updateOne(Review);
