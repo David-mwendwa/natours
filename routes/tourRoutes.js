@@ -14,6 +14,7 @@ const reviewRouter = require('../routes/reviewRoutes');
 
 const router = express.Router();
 
+// TODO: troubleshoot this route!
 router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);

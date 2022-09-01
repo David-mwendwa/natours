@@ -1,4 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -56,4 +57,25 @@ exports.getOne = (Model, populateOptions) =>
       return next(new AppError('No document found with that ID', 404));
     }
     res.status(StatusCodes.OK).json({ status: 'success', data: { data: doc } });
+  });
+
+exports.getAll = (Model) =>
+  catchAsync(async (req, res, next) => {
+    // To allow for nested GET reviews on tour
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
+
+    const features = new APIFeatures(Model.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const doc = await features.query;
+
+    res.status(StatusCodes.OK).json({
+      status: 'success',
+      results: doc.length,
+      data: { data: doc },
+    });
   });
