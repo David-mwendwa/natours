@@ -76,6 +76,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   }
 };
 
+// TODO: troubleshoot these findOneAnd* hooks
 reviewSchema.pre(/^findOneAnd/, async function (next) {
   this.r = await this.findOne();
   next();
