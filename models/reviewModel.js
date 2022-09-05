@@ -36,6 +36,7 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// TODO: troubleshoot this index
 // each combination of tour and user has to be unique
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
@@ -79,6 +80,11 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   }
 };
 
+reviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
 // TODO: troubleshoot these findOneAnd* hooks
 reviewSchema.pre(/^findOneAnd/, async function (next) {
   this.r = await this.findOne();
@@ -86,11 +92,6 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 });
 reviewSchema.post(/^findOneAnd/, async function () {
   await this.r.constructor.calcAverageRatings(this.r.tour);
-});
-
-reviewSchema.post('save', function () {
-  // this points to current review
-  this.constructor.calcAverageRatings(this.tour);
 });
 
 module.exports = mongoose.model('Review', reviewSchema);
