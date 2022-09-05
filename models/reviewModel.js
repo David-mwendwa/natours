@@ -36,6 +36,9 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// each combination of tour and user has to be unique
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // populate reviews with user & tour data
 reviewSchema.pre(/^find/, async function (next) {
   // this.populate({
