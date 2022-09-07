@@ -51,6 +51,7 @@ exports.getOne = (Model, populateOptions) =>
     if (populateOptions) {
       query = query.populate(populateOptions);
     }
+    
     const doc = await query;
 
     if (!doc) {
