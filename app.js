@@ -1,4 +1,5 @@
 require('express-async-errors');
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -15,7 +16,13 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // MIDDLEWARES
+// serving static files
+app.use(express.static(path.join(__dirname, `public`)));//serve html files
+
 app.use(helmet());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -39,15 +46,15 @@ app.use(xss());
 // prevent parameter pollution
 app.use(hpp());
 
-// serving static files
-app.use(express.static(`${__dirname}/public`)); //serve html files
-
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
 
 // ROUTES
+app.get('/', (req, res) => {
+  res.status(200).render('base')
+})
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
